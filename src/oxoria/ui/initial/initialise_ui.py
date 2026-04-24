@@ -112,8 +112,8 @@ class InitUI(QMainWindow):
             sample_config = json.load(f)
         with open(Path(self.central_repo_dir) / "config/editor_config.json", mode="w", encoding="utf-8") as f:
             json.dump(sample_config, f, ensure_ascii=False, indent=4)
-        with open(Path(self.central_repo_dir) / "resources_lib/resources.json", mode="w", encoding="utf-8") as f:
-            json.dump({"resources": {}}, f, ensure_ascii=False, indent=4)
+        with open(Path(self.central_repo_dir) / "resources_lib/resources_profile.json", mode="w", encoding="utf-8") as f:
+            json.dump({}, f, ensure_ascii=False, indent=4)
         settings = QSettings("App", "oxoria")
         settings.setValue("central_repo_dir", self.central_repo_dir)
 

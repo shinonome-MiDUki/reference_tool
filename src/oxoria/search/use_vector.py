@@ -1,4 +1,6 @@
 from __future__ import annotations
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from typing import TYPE_CHECKING
 from pathlib import Path
 
@@ -6,23 +8,26 @@ import numpy as np
 import faiss
 if TYPE_CHECKING:
     from torch import Tensor
+from transformers import AutoTokenizer
+from optimum.onnxruntime import ORTModelForFeatureExtraction
 
 from oxoria.search.langugae_processing_variables import LanguageProcessingVariables as LPVar
 
 class UseVector:
     def __init__(self):
-        current_root = Path(__file__).resolve().parents[2]
+        current_root = Path(__file__).resolve().parents[1]
         self.model_dir = current_root / LPVar.MODEL_DIR
 
     def setup_model_and_tokenizer(self) -> None:
         if hasattr(self, "model") and hasattr(self, "tokenizer"):
             return
-        from transformers import AutoTokenizer
-        from optimum.onnxruntime import ORTModelForFeatureExtraction
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_dir, 
-                                                       fix_mistral_regex=True)
+        print(f"Loading model and tokenizer from {self.model_dir}...")
+        model_path = os.path.abspath(self.model_dir)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, 
+                                                       fix_mistral_regex=True,
+                                                       local_files_only=True)
         self.model = ORTModelForFeatureExtraction.from_pretrained(
-            self.model_dir, 
+            model_path, 
             file_name=LPVar.MODEL_NAME
             )
         

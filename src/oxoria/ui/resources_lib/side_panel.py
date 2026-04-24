@@ -10,14 +10,16 @@ from PySide6.QtGui import (
     QColor, QPixmap, QDrag
 )
 from PySide6.QtCore import (
-    Qt, QMimeData, QSettings
+    Qt, QMimeData, QSettings, Signal
 )
 
 from oxoria.ui.ui_var import UI_Var
-
+from oxoria.cmd.resources_api import ResourcesAPI
+from oxoria.cmd.search_api import SearchAPI
 
 class ResourceIcon(QWidget):
     def __init__(self, 
+                 pointer: str,
                  resource_name: str,
                  memo_text: str,
                  tags: list[str],
@@ -26,6 +28,7 @@ class ResourceIcon(QWidget):
         super().__init__()
         self.hlayout = QHBoxLayout(self)
         self.hlayout.setContentsMargins(4, 4, 4, 4)
+        self.pointer = pointer
         self.resource_name = resource_name
         self.memo_text = memo_text
         self.tags = tags
@@ -74,9 +77,10 @@ class SidePanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.resources_index_path = Path(QSettings("App", "oxoria").value("central_repo_dir")) / "resources_lib/resources.json"
+        self.resources_index_path = Path(QSettings("App", "oxoria").value("central_repo_dir")) / "resources_lib/resources_profile.json"
         self.setMinimumWidth(UI_Var.SIDEBAR_MIN)
         self.setMaximumWidth(UI_Var.SIDEBAR_MAX)
+        self.suitable_pointer_list = []
         self._build_ui()
         self._apply_style()
 
@@ -114,7 +118,7 @@ class SidePanel(QWidget):
         self.search_box.setPlaceholderText("Search My Resources")
         self.search_box.setObjectName("searchBox")
         self.search_box.setClearButtonEnabled(True)
-        self.search_box.textChanged.connect(self._on_search_changed)
+        self.search_box.editingFinished.connect(self._on_search_changed)
 
         sf_layout.addWidget(self.search_box)
 
@@ -149,10 +153,7 @@ class SidePanel(QWidget):
 
     def _populate_tree(self):
         with open(self.resources_index_path, "r") as f:
-            app_data = json.load(f)
-
-        if "resources" in app_data:
-            resources_data = app_data["resources"]
+            resources_data = json.load(f)
 
         catagories = {}
         for pointer in resources_data:
@@ -173,7 +174,8 @@ class SidePanel(QWidget):
                 catagories[category] = tree_item
             if img_path == "" or not Path(img_path).exists():
                 continue
-            resource_icon = ResourceIcon(resource_name=name, 
+            resource_icon = ResourceIcon(pointer=pointer,
+                                resource_name=name, 
                                 memo_text=memo, 
                                 tags=tags, 
                                 img_path=img_path)
@@ -182,9 +184,68 @@ class SidePanel(QWidget):
             self.tree.setItemWidget(child_item, 0, resource_icon)
             child_item.setSizeHint(0, resource_icon.sizeHint())
 
+    def append_tree(self, 
+                     pointer: str,
+                     profile: dict
+                     ) -> None:
+        img_path = profile.get("path", "")
+        name = profile.get("name", "Unnamed Resource")
+        memo = profile.get("memo", "")
+        tags = profile.get("tags", [])
+        category = profile.get("category", "Uncategorized")
+        for i in range(self.tree.topLevelItemCount()):
+            catagory_item = self.tree.topLevelItem(i)
+            if catagory_item.text(0) == category:
+                tree_item_to_append = catagory_item
+                break
+        else:
+            tree_item_to_append = QTreeWidgetItem(self.tree)
+            tree_item_to_append.setText(0, category)
+            tree_item_to_append.setExpanded(True)
+            font = tree_item_to_append.font(0)
+            font.setBold(True)
+            tree_item_to_append.setFont(0, font)
+            tree_item_to_append.setForeground(0, QColor("#9D9D9D"))
+        if img_path == "" or not Path(img_path).exists():
+            return
+        resource_icon = ResourceIcon(pointer=pointer,
+                            resource_name=name, 
+                            memo_text=memo, 
+                            tags=tags, 
+                            img_path=img_path)
+        child_item = QTreeWidgetItem(tree_item_to_append)
+        self.tree.setItemWidget(child_item, 0, resource_icon)
+        child_item.setSizeHint(0, resource_icon.sizeHint())
+
+    def _filter_tree(self):
+        if not self.suitable_pointer_list:
+            for i in range(self.tree.topLevelItemCount()):
+                catagory_item = self.tree.topLevelItem(i)
+                for j in range(catagory_item.childCount()):
+                    child_item = catagory_item.child(j)
+                    child_item.setHidden(False)
+            return
+        for i in range(self.tree.topLevelItemCount()):
+            catagory_item = self.tree.topLevelItem(i)
+            for j in range(catagory_item.childCount()):
+                child_item = catagory_item.child(j)
+                resource_icon = self.tree.itemWidget(child_item, 0)
+                if resource_icon.pointer in self.suitable_pointer_list:
+                    child_item.setHidden(False)
+                else:
+                    child_item.setHidden(True)
+
     # ── イベント（空実装） ─────────────────────
-    def _on_search_changed(self, text):
-        pass   
+    def _on_search_changed(self):
+        kw = self.search_box.text().strip()
+        if kw == "":
+            self.suitable_pointer_list = []
+            self._filter_tree()
+            return
+        search_api = SearchAPI()
+        self.suitable_pointer_list = search_api.semantic_search_kw_to_pointer(kw=self.search_box.text(), 
+                                                                              return_num=2)
+        self._filter_tree()
 
     def _on_item_clicked(self, item, column):
         pass  

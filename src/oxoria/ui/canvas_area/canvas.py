@@ -2,7 +2,7 @@ import sys
 import math
 
 from PySide6.QtWidgets import (
-    QGraphicsView, QGraphicsScene
+    QGraphicsView, QGraphicsScene, QDialog
 )
 from PySide6.QtCore import (
     Qt, QPoint, QLineF
@@ -128,8 +128,11 @@ class MainCanvas(QGraphicsView):
                 return
             if not existance_status[1]:
                 img_hash = existance_status[0]
-                resources_register_dialog = RegisterResourcesDialog(img_path=path, img_hash=img_hash)
-                resources_register_dialog.exec()
+                resources_register_dialog = RegisterResourcesDialog()
+                resources_register_dialog.draw_dialog(img_path=path, img_hash=img_hash)
+                register_status = resources_register_dialog.exec()
+                if register_status == QDialog.DialogCode.Rejected:
+                    return
             else:
                 path = resources_api.pointer_to_path(existance_status[0])
             pm = QPixmap(path)

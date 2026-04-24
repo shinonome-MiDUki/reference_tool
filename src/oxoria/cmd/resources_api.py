@@ -51,7 +51,7 @@ class ResourcesAPI:
         if resources_profile_path.exists(): 
             with open(resources_profile_path, "r", encoding="utf-8") as f:
                 current_profile = json.load(f)
-            return current_profile.get("resources", {})
+            return current_profile
         else:
             return {}
         
@@ -71,7 +71,7 @@ class ResourcesAPI:
         if memo is None:
             memo = ""
         profile = {
-            "path": img_path,
+            "path": str(img_path),
             "name": name,
             "memo": memo,
             "tags": tags
