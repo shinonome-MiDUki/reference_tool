@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import platform
 from dotenv import set_key, find_dotenv
 from pathlib import Path
 
@@ -10,10 +11,11 @@ from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QStackedWidget, 
     QFileDialog, QStyle, QCheckBox
     )
-from PySide6.QtCore import Qt, QSettings
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt, QSettings, QUrl
+from PySide6.QtGui import QPixmap, QDesktopServices
 
 from oxoria.cmd.app_api import AppAPI
+from oxoria.search.use_vector import UseVector
 from oxoria.global_var import GBVar
 
 class InitUI(QMainWindow):
@@ -146,10 +148,24 @@ class InitUI(QMainWindow):
         if self.use_capture_checkbox.isChecked():
             app_api = AppAPI()
             app_api.run_capture_monitor()
+            if platform.system() == "Darwin":
+                url = QUrl("x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+                QDesktopServices.openUrl(url)
+            elif platform.system() == "Windows":
+                try:
+                    url = QUrl("ms-settings:privacy-extra-caps")
+                    QDesktopServices.openUrl(url)
+                except:
+                    url = QUrl("ms-settings:privacy")
+                    QDesktopServices.openUrl(url)
+            else:
+                pass
 
     def launch_main_window(self):
         self.make_dirs()
         self.open_capture_monitor()
+        use_vector = UseVector()
+        #use_vector.drop_model_and_tokenizer()
 
         from oxoria.ui.main_ui import MainWindow
         self.main_window = MainWindow()

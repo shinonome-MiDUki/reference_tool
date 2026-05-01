@@ -11,7 +11,7 @@ import setproctitle
 
 from oxoria.ui.main_ui import MainWindow
 from oxoria.ui.initial.initialise_ui import InitUI
-from oxoria.search.use_vector import UseVector
+from oxoria.cmd.search_api import SearchAPI
 from oxoria.cmd.app_api import AppAPI
 from oxoria.global_var import GBVar
 
@@ -34,10 +34,9 @@ def main():
     splash.show()
     splash.showMessage("Loading transformers", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
     
-    use_vector = UseVector()
+    search_api = SearchAPI()
     setproctitle.setproctitle("Oxoria 1.0")
     if check_first_run():
-        use_vector.drop_model_and_tokenizer()
         win = InitUI()
     else:
         if QSettings("App", "oxoria").value("use_capture_monitor", "true") == "true":

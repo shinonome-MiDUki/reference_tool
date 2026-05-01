@@ -1,15 +1,15 @@
 import tkinter as tk
 import subprocess
 import os
+import time
 import json
-import shutil
 import platform
 import threading
 import queue
 from pathlib import Path
 
-import pystray
 import setproctitle
+from PIL import ImageGrab
 from dotenv import load_dotenv
 from pynput import keyboard
 
@@ -109,14 +109,21 @@ class CaptureImageTaskTray:
 
     def capture_to_oxoria(self):
         print("HelloWorld")
-        if platform.system() != "Darwin":
-            print("Only Mac supported currently")
-            return
         resources_lib = Path(self.central_repo_dir) / "resources_lib"
         if not resources_lib.exists():
             resources_lib.mkdir(parents=True, exist_ok=True)
         temp_img_path = str(resources_lib / "temp_resource.png")
-        subprocess.run(["screencapture", "-i", temp_img_path])
+        if platform.system() == "Darwin":
+            subprocess.run(["screencapture", "-i", temp_img_path])
+        elif platform.system() == "Windows":
+            subprocess.run(["snippingtool", "/clip", "/snip"])
+            time.sleep(0.5)
+            im = ImageGrab.grabclipboard()
+            if not im:
+                return
+            im.save(temp_img_path)
+        else:
+            return
         if os.path.exists(temp_img_path):
             TkinterWindow(master_tkroot=self.root,
                         central_repo_dir=self.central_repo_dir,
