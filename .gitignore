@@ -4,8 +4,6 @@ __pycache__/
 *.py[codz]
 *$py.class
 
-src/oxoria/_resources/
-
 # C extensions
 *.so
 

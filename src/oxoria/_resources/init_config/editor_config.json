@@ -1,0 +1,49 @@
+{
+    "menu_bar": {
+        "File": {
+            "Import resource": {},
+            "Open file": {},
+            "Save": {},
+            "Save as": {},
+            "Export Canvas": {},
+            "Snapshot": {},
+            "Open snapshot": {}
+        },
+        "Edit": {
+            "Redo": {},
+            "Undo": {},
+            "Notes": {},
+            "New canvas": {},
+            "Settings": {}
+        },
+        "Images": {
+            "Group": {},
+            "Memo": {},
+            "Permanant memo": {},
+            "Delete": {},
+            "Align": {}
+        },
+        "Canvas": {
+            "Lock": {},
+            "Grayscale": {},
+            "Snapshot": {},
+            "Switch snapshots": {}
+        },
+        "Windows": {
+            "Minimise": {},
+            "Maximise": {},
+            "Lock window": {},
+            "New Window": {}
+        },
+        "Resources": {
+            "Open browser": {},
+            "Add to resources": {},
+            "Export resources": {}
+        },
+        "Help": {
+            "Documentation": {},
+            "Python API": {},
+            "Contact us": {}
+        }
+    }
+}
