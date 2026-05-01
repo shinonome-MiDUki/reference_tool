@@ -7,7 +7,7 @@ packages = ["src/oxoria"]
 
 [project]
 name = "oxoria"
-version = "2026.1.0"
+version = "2026.1.2"
 dependencies = [
     "PySide6",
     "faiss-cpu",
@@ -20,7 +20,8 @@ dependencies = [
     "ImageHash",
     "psutil",
     "setproctitle",
-    "python-dotenv"
+    "python-dotenv",
+    "pynput"
 ]
 requires-python = ">=3.10"
 authors = [
