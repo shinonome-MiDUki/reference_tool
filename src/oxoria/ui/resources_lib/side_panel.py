@@ -127,7 +127,7 @@ class SidePanel(QWidget):
         ff_layout.setContentsMargins(8, 0, 8, 4)
         ff_layout.setSpacing(4)
 
-        for label in ("Installed", "Popular", "Recommended"):
+        for label in ("A", "B", "C"):
             btn = QPushButton(label)
             btn.setObjectName("filterBtn")
             btn.setCheckable(True)

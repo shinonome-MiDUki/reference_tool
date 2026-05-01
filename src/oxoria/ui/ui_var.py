@@ -7,6 +7,9 @@ class UI_Var:
     SIDEBAR_MIN     = 200       # サイドパネルの最小幅 (px)  ← 0で「消せる」
     SIDEBAR_STANDBY = 300
     SIDEBAR_MAX     = 700     # サイドパネルの最大幅 (px)s
+    MAIN_CANVAS = None
+    MAIN_WINDOW = None
 
 class Config_Var:
     DATA_DIR = None
+

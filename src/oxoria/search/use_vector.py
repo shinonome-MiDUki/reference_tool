@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import shutil
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from typing import TYPE_CHECKING
 from pathlib import Path
@@ -11,25 +12,45 @@ if TYPE_CHECKING:
 from transformers import AutoTokenizer
 from optimum.onnxruntime import ORTModelForFeatureExtraction
 
-from oxoria.search.langugae_processing_variables import LanguageProcessingVariables as LPVar
+from oxoria.global_var import GBVar
 
 class UseVector:
     def __init__(self):
-        current_root = Path(__file__).resolve().parents[1]
-        self.model_dir = current_root / LPVar.MODEL_DIR
+        self.data_dir = GBVar.DATA_DIR
 
     def setup_model_and_tokenizer(self) -> None:
         if hasattr(self, "model") and hasattr(self, "tokenizer"):
             return
-        print(f"Loading model and tokenizer from {self.model_dir}...")
-        model_path = os.path.abspath(self.model_dir)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, 
-                                                       fix_mistral_regex=True,
-                                                       local_files_only=True)
-        self.model = ORTModelForFeatureExtraction.from_pretrained(
-            model_path, 
-            file_name=LPVar.MODEL_NAME
-            )
+        model_dir = Path(self.data_dir) / "language_model" / "model"
+        cache_dir = Path(self.data_dir) / "language_model" / "cache_model"
+        model_config_path = model_dir / "config.json"
+        if not model_dir.exists() or not model_config_path.exists():
+            model_dir.mkdir(parents=True, exist_ok=True)
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            tmp_tokenizer = AutoTokenizer.from_pretrained(
+                "shinonome-MiDUki/paraphrase-multilingual-MiniLM-based-quantumized-model-forOXORIA",
+                cache_dir=str(cache_dir),
+                fix_mistral_regex=True)
+            tmp_model = ORTModelForFeatureExtraction.from_pretrained(
+                "shinonome-MiDUki/paraphrase-multilingual-MiniLM-based-quantumized-model-forOXORIA",
+                file_name="model_quantized.onnx",
+                cache_dir=str(cache_dir)
+                )
+            tmp_tokenizer.save_pretrained(str(model_dir))
+            tmp_model.save_pretrained(str(model_dir))
+            self.tokenizer = tmp_tokenizer
+            self.model = tmp_model
+            shutil.rmtree(cache_dir)
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                str(model_dir),
+                fix_mistral_regex=True,
+                local_files_only=True)
+            self.model = ORTModelForFeatureExtraction.from_pretrained(
+                str(model_dir),
+                file_name="model_quantized.onnx",
+                local_files_only=True
+                )
         
     def average_pool(self, 
                      last_hidden_states: Tensor, 

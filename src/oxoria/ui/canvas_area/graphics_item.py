@@ -48,6 +48,7 @@ class ImageItem(QGraphicsPixmapItem):
             "BR": ResizeHandle("BR", self),
         }
         self.original_path = None
+        self.pointer = None
 
         self._place_handles()
 

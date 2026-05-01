@@ -52,6 +52,7 @@ class MainWindow(QMainWindow):
 
         main_layout.addWidget(self.splitter, stretch=1)
         main_layout.addWidget(HintBar())
+        UI_Var.MAIN_WINDOW = self
 
     def check_temp_registered_resource(self):
         temp_resources_path = Path(QSettings("App", "oxoria").value("central_repo_dir")) / "resources_lib/temp_resources.json"

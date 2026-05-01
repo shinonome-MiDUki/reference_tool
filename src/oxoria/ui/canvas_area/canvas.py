@@ -1,5 +1,6 @@
 import sys
 import math
+from pathlib import Path
 
 from PySide6.QtWidgets import (
     QGraphicsView, QGraphicsScene, QDialog
@@ -8,7 +9,7 @@ from PySide6.QtCore import (
     Qt, QPoint, QLineF
 )
 from PySide6.QtGui import (
-    QPainter, QColor, QBrush, QPixmap, QPen
+    QPainter, QColor, QBrush, QPixmap, QPen, QCursor
 )
 
 from oxoria.ui.canvas_area.graphics_item import ImageItem
@@ -41,6 +42,7 @@ class MainCanvas(QGraphicsView):
 
         self.panning     = False
         self.pan_start   = QPoint()
+        UI_Var.MAIN_CANVAS = self
 
     def drawBackground(self, painter, rect):
         super().drawBackground(painter, rect)
@@ -119,8 +121,14 @@ class MainCanvas(QGraphicsView):
 
     def handle_file_drop(self, 
                          path: str, 
-                         event = None
+                         event = None,
+                         open_from_ext: bool = False,
                          ) -> None:
+        extension = Path(path).suffix.lstrip(".").lower()
+        if extension not in ["bmp", "cur", "gif", "ico", "jfif", "jpeg",
+                             "jpg", "pbm", "pgm", "png", "ppm", "svg", 
+                             "svgz", "xbm", "xpm"]:
+            return
         resources_api = ResourcesAPI()
         existance_status = resources_api.check_exists(img_hash=None,
                                                         img_path=path,
@@ -136,14 +144,20 @@ class MainCanvas(QGraphicsView):
             if register_status == QDialog.DialogCode.Rejected:
                 return
         else:
-            path = resources_api.pointer_to_path(existance_status[0])
-        if event is None:
+            pointer = existance_status[0]
+            path = resources_api.pointer_to_path(pointer)
+        if event is None and not open_from_ext:
             return
         pm = QPixmap(path)
-        if not pm.isNull():
+        if open_from_ext:
+            cursor_glob_pos = QCursor.pos()
+            scene_pos = self.mapToScene(self.mapFromGlobal(cursor_glob_pos))
+        else:
             scene_pos = self.mapToScene(event.position().toPoint())
+        if not pm.isNull():
             item = ImageItem(pm, scene_pos)
             item.original_path = path
+            item.pointer = pointer
             self.scene().addItem(item)
 
     def dropEvent(self, event):
