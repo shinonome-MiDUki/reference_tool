@@ -1,63 +1,78 @@
-# OXORIA
+# Oxoria 🎨
 
-OXORIA is a next-generation reference image management software designed for digital creators, concept artists, and 3D modelers. Unlike traditional reference tools that act as simple infinite canvases, OXORIA introduces structured memory, semantic search, and state-versioning to streamline the creative workflow.
+> A modern, open-source reference management tool for artists and 3D creators.
 
-## Key Features
+![OXORIA](src/oxoria/_resources/assets/initial_image.jpg)
+---
 
-### 1 Intelligent Image Memory
+## What is Oxoria?
 
-- Unique Asset Management: Uses pixel-based hash comparison to prevent duplicate imports.
+Oxoria is a feature-rich reference management tool designed for digital artists and 3D creators. Whether you're painting, illustrating, or modelling in 3D, Oxoria helps you collect, organize, and retrieve your visual references — all in one place.
 
-- Pointer-Based System: Each image is stored as a unique entity (ID). Multiple canvases point to the same asset, ensuring zero redundant data.
+> **Try it now:** `pip install oxoria` → launch with `oxoria`
 
-- Semantic Search: Powered by a Vector Database. Find images using natural language (e.g., searching "cat" will find images tagged with "cats" or "kitty").
+---
 
-- Global Inbox: Collect images daily with personal memos, even if you aren't working on a specific project yet.
+## ✨ Key Features
 
-### 2 Versatile Viewing Modes
+### 🔍 Semantic Search
+Find references by meaning, not just filename. Type a concept like *"religion"* and Oxoria will surface relevant results such as *"shrine"* — powered by natural language understanding applied to your own image memos.
 
-- Canvas Mode: A traditional free-form space. Use Ctrl+J and type a group name to instantly jump to specific clusters.
+### 📸 Instant Screenshot Capture
+No need to open the app first. With **Oxoria Screen Capture Util** running in the background, press `Cmd+Shift+O` anytime to capture your screen and import it directly into your reference library.
 
-- Tile Mode: Automatically organizes groups into a structured grid layout inspired by the River tiling compositor for Linux.
+### 🔁 Duplicate Detection
+Oxoria stores a perceptual hash for every image. Re-importing the same image won't create duplicates — your library stays clean automatically.
 
-- Dual Perspective: Effortlessly view different parts of your workspace simultaneously.
+### 📦 Fully Portable
+Your entire reference library lives in a single central repository folder. Copy it to a new machine and pick up exactly where you left off.
 
-### 3 Dynamic Classification
+### 🐍 Python API
+Every UI action and internal operation maps to a Python function. Combine them freely to automate workflows, build custom pipelines, or extend Oxoria however you like.
 
-- Contextual Switching: Toggle between different classification layouts for the same set of images.
+---
 
-- Example: Switch from "Pose-based" grouping during the sketching phase to "Color-based" grouping during the painting phase.
+## 🛠️ Tech Stack
 
-### 4 3D Reference Support
+| Category | Details |
+|---|---|
+| Language | Python 3.13 |
+| GUI | PySide6 |
+| ML / Search | `transformers`, `torch`, `faiss-cpu`, `optimum[onnxruntime]` |
+| Image Processing | `Pillow`, `ImageHash` |
+| Utilities | `numpy`, `psutil`, `setproctitle` |
 
-- OBJ Previewer: Integrated OpenGL-based viewer for 3D models. Reference 3D silhouettes and forms alongside 2D images in the same workspace.
+---
 
-### 5 UI as Data & Version Control
+## 🗺️ Roadmap
 
-- Embedded Git: OXORIA integrates Git to track the state of your UI.
+- [ ] **3D Object Import** — Import `.obj` and other 3D formats as interactive references via OpenGL
+- [ ] **Canvas Version Control** — Git-backed versioning of canvas layouts using PyGit
+- [ ] **Window Overlay Mode** — Keep references on top with an adjustable transparent window while working in other apps
+- [ ] **Partial C++ Migration** — Performance-critical modules (e.g. 3D rendering) migrated to C++ as needed
 
-- Layout Snapshots: Easily revert to yesterday's specific window arrangement or image positioning. The file defines the UI, not just the content.
+---
 
-- Backwards Compatibility: The file format focuses on pointers and layout definitions, ensuring stability as the software evolves.
+## ⚠️ Known Limitations
 
-### 6 Resolution Independence
+- **Startup time** — `transformers` and `torch` currently add ~8 seconds to startup. A planned migration to a Rust-based tokenizer and a lighter ONNX runtime should significantly reduce this.
+- **Duplicate sensitivity** — The current 16-bit dHash may flag near-identical images (e.g. expression variants) as duplicates. Upgrading to 32-bit dHash is planned.
+- **API coherence** — The Python API is functional but spread across modules. A cleaner, more unified interface is in progress.
+- **Test coverage** — Automated unit and regression tests are not yet in place; this is a known priority.
 
-- Visual-First Sizing: By default, images are sized based on screen pixels and aspect ratios rather than raw file resolution, ensuring a consistent visual scale across your workspace.
+---
 
-### 7 Extensibility & Automation
+## 📄 License
 
-- Python API: Every UI operation is mapped to a Python function.
+Licensed under the **Apache 2.0 License** — free to use, modify, and redistribute for both personal and commercial purposes.
 
-- Scripting: Automate your workflow or build custom extensions using the public Python API.
+---
 
-### 8 System Integration
+## 🔗 Links
 
-- OS-Level Shortcuts: Capture and import screenshots directly into OXORIA with a single global hotkey.
+- 📁 [GitHub Repository](https://github.com/shinonome-MiDUki/oxoria)
 
-## Open Source
+---
 
-OXORIA is proud to be open-source, released under the Apache License 2.0. We believe in empowering the creative community through transparency and collaboration.
-
-## License
-
-Distributed under the Apache License 2.0. See LICENSE for more information.
+*Oxoria is still under active development. Feedback and contributions are very welcome!*
+*A stable build is planned for release on Steam once the core feature set is complete.*
