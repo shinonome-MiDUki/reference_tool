@@ -8,10 +8,13 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, 
     QVBoxLayout, QHBoxLayout, QLabel, 
     QLineEdit, QPushButton, QStackedWidget, 
-    QFileDialog, QStyle
+    QFileDialog, QStyle, QCheckBox
     )
 from PySide6.QtCore import Qt, QSettings
 from PySide6.QtGui import QPixmap
+
+from oxoria.cmd.app_api import AppAPI
+from oxoria.global_var import GBVar
 
 class InitUI(QMainWindow):
     def __init__(self):
@@ -46,6 +49,7 @@ class InitUI(QMainWindow):
 
         self.setup_page_1()
         self.setup_page_2()
+        self.setup_page_3()
 
     def app_data_dir(self) -> str:
         home = Path.home()
@@ -58,7 +62,6 @@ class InitUI(QMainWindow):
         return str(app_data)
 
     def setup_page_1(self):
-        """1番目の画面：入力スペース"""
         page = QWidget()
         layout = QVBoxLayout(page)
         
@@ -85,7 +88,22 @@ class InitUI(QMainWindow):
         self.stack.addWidget(page)
 
     def setup_page_2(self):
-        """2番目の画面：完了・確認など"""
+        page = QWidget()
+        layout = QVBoxLayout(page)
+
+        layout.addStretch()
+        self.use_capture_checkbox = QCheckBox("Use Oxoria Screen Capture Monitor")
+        layout.addWidget(self.use_capture_checkbox)
+        layout.addStretch()
+
+        next_btn = QPushButton("Next →")
+        next_btn.setFixedHeight(30)
+        next_btn.clicked.connect(lambda: self.stack.setCurrentIndex(2))
+        layout.addWidget(next_btn)
+        
+        self.stack.addWidget(page)
+
+    def setup_page_3(self):
         page = QWidget()
         layout = QVBoxLayout(page)
         
@@ -120,9 +138,18 @@ class InitUI(QMainWindow):
         env_file = find_dotenv()
         if env_file:
             set_key(env_file, "OXORIA_CENTRAL_REPO_DIR", self.central_repo_dir)
+        GBVar.DATA_DIR = self.central_repo_dir
+
+    def open_capture_monitor(self):
+        situation = "true" if self.use_capture_checkbox.isChecked() else "false"
+        QSettings("App", "oxoria").setValue("use_capture_monitor", situation)
+        if self.use_capture_checkbox.isChecked():
+            app_api = AppAPI()
+            app_api.run_capture_monitor()
 
     def launch_main_window(self):
         self.make_dirs()
+        self.open_capture_monitor()
 
         from oxoria.ui.main_ui import MainWindow
         self.main_window = MainWindow()

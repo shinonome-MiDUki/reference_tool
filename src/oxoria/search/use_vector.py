@@ -18,39 +18,48 @@ class UseVector:
     def __init__(self):
         self.data_dir = GBVar.DATA_DIR
 
-    def setup_model_and_tokenizer(self) -> None:
+    def drop_model_and_tokenizer(self) -> None:
         if hasattr(self, "model") and hasattr(self, "tokenizer"):
             return
         model_dir = Path(self.data_dir) / "language_model" / "model"
         cache_dir = Path(self.data_dir) / "language_model" / "cache_model"
         model_config_path = model_dir / "config.json"
+        if model_dir.exists() and model_config_path.exists():
+            return
+        model_dir.mkdir(parents=True, exist_ok=True)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        tmp_tokenizer = AutoTokenizer.from_pretrained(
+            "shinonome-MiDUki/paraphrase-multilingual-MiniLM-based-quantumized-model-forOXORIA",
+            cache_dir=str(cache_dir),
+            fix_mistral_regex=True)
+        tmp_model = ORTModelForFeatureExtraction.from_pretrained(
+            "shinonome-MiDUki/paraphrase-multilingual-MiniLM-based-quantumized-model-forOXORIA",
+            file_name="model_quantized.onnx",
+            cache_dir=str(cache_dir)
+            )
+        tmp_tokenizer.save_pretrained(str(model_dir))
+        tmp_model.save_pretrained(str(model_dir))
+        self.tokenizer = tmp_tokenizer
+        self.model = tmp_model
+        shutil.rmtree(cache_dir)
+
+    def setup_model_and_tokenizer(self) -> None:
+        if hasattr(self, "model") and hasattr(self, "tokenizer"):
+            return
+        model_dir = Path(self.data_dir) / "language_model" / "model"
+        model_config_path = model_dir / "config.json"
         if not model_dir.exists() or not model_config_path.exists():
-            model_dir.mkdir(parents=True, exist_ok=True)
-            cache_dir.mkdir(parents=True, exist_ok=True)
-            tmp_tokenizer = AutoTokenizer.from_pretrained(
-                "shinonome-MiDUki/paraphrase-multilingual-MiniLM-based-quantumized-model-forOXORIA",
-                cache_dir=str(cache_dir),
-                fix_mistral_regex=True)
-            tmp_model = ORTModelForFeatureExtraction.from_pretrained(
-                "shinonome-MiDUki/paraphrase-multilingual-MiniLM-based-quantumized-model-forOXORIA",
-                file_name="model_quantized.onnx",
-                cache_dir=str(cache_dir)
-                )
-            tmp_tokenizer.save_pretrained(str(model_dir))
-            tmp_model.save_pretrained(str(model_dir))
-            self.tokenizer = tmp_tokenizer
-            self.model = tmp_model
-            shutil.rmtree(cache_dir)
-        else:
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                str(model_dir),
-                fix_mistral_regex=True,
-                local_files_only=True)
-            self.model = ORTModelForFeatureExtraction.from_pretrained(
-                str(model_dir),
-                file_name="model_quantized.onnx",
-                local_files_only=True
-                )
+            self.drop_model_and_tokenizer()
+            return
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            str(model_dir),
+            fix_mistral_regex=True,
+            local_files_only=True)
+        self.model = ORTModelForFeatureExtraction.from_pretrained(
+            str(model_dir),
+            file_name="model_quantized.onnx",
+            local_files_only=True
+            )
         
     def average_pool(self, 
                      last_hidden_states: Tensor, 

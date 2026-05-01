@@ -139,7 +139,7 @@ class CaptureImageTaskTray:
     def trigger(self):
         print("triggered")
         print(os.getpid())
-        setproctitle.setproctitle("Oxoria Screen Capture Util")
+        setproctitle.setproctitle("Oxoria Screen Capture Monitor")
         t = threading.Thread(target=self._hotkey_loop, 
                              daemon=True)
         t.start()
