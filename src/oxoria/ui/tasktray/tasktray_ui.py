@@ -115,7 +115,7 @@ class CaptureImageTaskTray:
         temp_img_path = str(resources_lib / "temp_resource.png")
         if platform.system() == "Darwin":
             subprocess.run(["screencapture", "-i", temp_img_path])
-        elif platform.system() == "Windows":
+        elif platform.system() == "win32":
             subprocess.run(["snippingtool", "/clip", "/snip"])
             time.sleep(0.5)
             im = ImageGrab.grabclipboard()
