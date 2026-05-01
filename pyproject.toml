@@ -13,12 +13,14 @@ dependencies = [
     "faiss-cpu",
     "torch",
     "transformers",
+    "huggingface-hub",
     "numpy",
     "optimum[onnxruntime]", 
     "pillow",
     "ImageHash",
     "psutil",
-    "setproctitle"
+    "setproctitle",
+    "python-dotenv"
 ]
 requires-python = ">=3.10"
 authors = [

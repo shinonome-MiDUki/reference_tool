@@ -23,6 +23,8 @@ class CanvasAPI:
         scene = main_canvas.scene()
         item_list = scene.items()
         for graphics_item in item_list:
+            if not isinstance(graphics_item, ImageItem):
+                continue
             pointer = graphics_item.pointer
             size_h = graphics_item.img_h
             size_w = graphics_item.img_w
@@ -42,11 +44,12 @@ class CanvasAPI:
         save_dict = self.make_oxoria_file()
         with open(saving_path, "w", encoding="utf-8") as f:
             json.dump(save_dict, f, indent=2)
+        GBVar.OPENED_FILE = saving_path
 
     def open_oxoria_file(self, 
                          opening_path: str | Path
                          ) -> None:
-        if not opening_path.isinstance(Path):
+        if not isinstance(opening_path, Path):
             opening_path = Path(opening_path)
         if not opening_path.exists():
             return None
@@ -81,6 +84,7 @@ class CanvasAPI:
             img_item.img_w = img_item.boundingRect().width()
             img_item.img_h = img_item.boundingRect().height()
             main_canvas.scene().addItem(img_item)
+        GBVar.OPENED_FILE = opening_path
         
     def open_resource_on_canvas(self,
                                 img_path: str | Path
@@ -98,6 +102,7 @@ class CanvasAPI:
             return
         for graphics_item in main_canvas.scene().items():
             main_canvas.scene().removeItem(graphics_item)
+        GBVar.OPENED_FILE = None
 
     def wrap_canvas(self,
                     archive_path: str | Path
@@ -116,17 +121,18 @@ class CanvasAPI:
             with open(current_resources_profile_path, "r", encoding="utf-8") as f:
                 current_resources_profile = json.load(f)
             temp_image_dir = temp_export_dir / "images"
-            temp_export_dir.mkdir(parents=True, exist_ok=True)
+            temp_image_dir.mkdir(parents=True, exist_ok=True)
+            archiving_resources_profile = current_resources_profile.copy()
             for pointer in current_resources_profile:
                 if pointer not in canvas_file_dict:
-                    del current_resources_profile[pointer]
+                    del archiving_resources_profile[pointer]
                 else:
                     img_path = current_resources_profile[pointer]["path"]
                     shutil.copy2(img_path, temp_image_dir)
         else:
-            current_resources_profile = {}
+            archiving_resources_profile = {}
         with open(temp_export_dir / "temp_resources_profile.json", "w", encoding="utf-8") as f:
-            json.dump(current_resources_profile, f)
+            json.dump(archiving_resources_profile, f, ensure_ascii=False)
         shutil.make_archive(archive_path.with_suffix(""), format="zip", root_dir=temp_export_dir)
         os.rename(archive_path.with_suffix(".zip"), archive_path.with_suffix(".oxoarchive"))
         shutil.rmtree(temp_export_dir)

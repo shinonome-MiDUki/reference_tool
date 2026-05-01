@@ -15,6 +15,7 @@ class StdMenuCmd:
         self.app_api = AppAPI()
 
     def save_as(self) -> None:
+        print("Save As command executed")
         main_window = UI_Var.MAIN_WINDOW
         if main_window is None:
             return
@@ -44,7 +45,13 @@ class StdMenuCmd:
             filter="All files (*)")
         self.canvas_api.open_resource_on_canvas(img_path=img_path)
 
+    def new_canvas(self) -> None:
+        self.save_file()
+        self.canvas_api.clear_canvas()
+
     def open_oxoria_file(self) -> None:
+        if GBVar.OPENED_FILE is not None:
+            self.new_canvas()
         main_window = UI_Var.MAIN_WINDOW
         if main_window is None:
             return
@@ -55,10 +62,6 @@ class StdMenuCmd:
         if oxoria_file_path is None:
             return
         self.canvas_api.open_oxoria_file(opening_path=oxoria_file_path)
-
-    def new_canvas(self) -> None:
-        self.save_file()
-        self.canvas_api.clear_canvas()
 
     def export_canvas(self) -> None:
         main_window = UI_Var.MAIN_WINDOW
@@ -81,3 +84,6 @@ class StdMenuCmd:
 
     def force_quit_app(self) -> None:
         self.app_api.quit_app()
+
+    def test(self) -> None:
+        print("Test command executed")

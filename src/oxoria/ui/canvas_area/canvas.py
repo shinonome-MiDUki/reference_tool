@@ -14,8 +14,11 @@ from PySide6.QtGui import (
 
 from oxoria.ui.canvas_area.graphics_item import ImageItem
 from oxoria.cmd.resources_api import ResourcesAPI
+from oxoria.cmd.canvas_api import CanvasAPI
+from oxoria.cmd.std_menu_cmd import StdMenuCmd
 from oxoria.ui.resources_lib.registering_dialog import RegisterResourcesDialog
 from oxoria.ui.ui_var import UI_Var
+from oxoria.global_var import GBVar
 
 class MainCanvas(QGraphicsView):
 
@@ -125,6 +128,13 @@ class MainCanvas(QGraphicsView):
                          open_from_ext: bool = False,
                          ) -> None:
         extension = Path(path).suffix.lstrip(".").lower()
+        if extension == "oxoria":
+            canvas_api = CanvasAPI()
+            if GBVar.OPENED_FILE is not None:
+                std_menu_cmd = StdMenuCmd()
+                std_menu_cmd.new_canvas()
+            canvas_api.open_oxoria_file(opening_path=path)
+            return
         if extension not in ["bmp", "cur", "gif", "ico", "jfif", "jpeg",
                              "jpg", "pbm", "pgm", "png", "ppm", "svg", 
                              "svgz", "xbm", "xpm"]:
