@@ -6,15 +6,18 @@ from pathlib import Path
 
 from PySide6.QtCore import QSettings
 
-from oxoria.graphics.img.image_hash import ImageHash
+from oxoria.graphics.img.image_hash import ImageHashing
 from oxoria.global_var import GBVar
 
 class ResourcesAPI:
-    def __init__(self):
+    def __init__(self, data_path: str | None = None):
         if platform.system() == "Darwin":
             os.environ["OMP_NUM_THREADS"] = "1"
-        self.data_path = str(GBVar.DATA_DIR)
-        self.image_hash = ImageHash(hash_mode="dhash", 
+        if data_path is not None:
+            self.data_path = data_path
+        else:
+            self.data_path = str(GBVar.DATA_DIR)
+        self.image_hash = ImageHashing(hash_mode="dhash", 
                                     hash_size=8, 
                                     hash_set_path=str(Path(self.data_path) / "img_process/image_hash_set.pkl"))
         
@@ -67,7 +70,7 @@ class ResourcesAPI:
         if tags is None:
             tags = []
         if make_clone_path:
-            img_path = Path(QSettings("App", "oxoria").value("central_repo_dir")) / "resources_lib" / Path(img_path).name
+            img_path = Path(self.data_path) / "resources_lib" / Path(img_path).name
         if name is None:
             name = Path(img_path).stem
         if memo is None:

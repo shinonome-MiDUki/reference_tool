@@ -4,7 +4,7 @@ import json
 from PIL import Image
 import imagehash
 
-class ImageHash:
+class ImageHashing:
     def __init__(self,  
                  hash_mode: str, 
                  hash_size: int,

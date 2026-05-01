@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+from dotenv import set_key, find_dotenv
 from pathlib import Path
 
 from PySide6.QtWidgets import (
@@ -116,6 +117,9 @@ class InitUI(QMainWindow):
             json.dump({}, f, ensure_ascii=False, indent=4)
         settings = QSettings("App", "oxoria")
         settings.setValue("central_repo_dir", self.central_repo_dir)
+        env_file = find_dotenv()
+        if env_file:
+            set_key(env_file, "OXORIA_CENTRAL_REPO_DIR", self.central_repo_dir)
 
     def launch_main_window(self):
         self.make_dirs()
