@@ -71,6 +71,7 @@ Licensed under the **Apache 2.0 License** — free to use, modify, and redistrib
 ## 🔗 Links
 
 - 📁 [GitHub Repository](https://github.com/shinonome-MiDUki/oxoria)
+- 📦 [PyPI Package](https://pypi.org/project/oxoria/)
 
 ---
 
