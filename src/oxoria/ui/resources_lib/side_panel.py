@@ -150,7 +150,7 @@ class SidePanel(QWidget):
         root_layout.addWidget(self.tree, stretch=1)
 
     def _populate_tree(self):
-        with open(self.resources_index_path, "r") as f:
+        with open(self.resources_index_path, "r", encoding="utf-8") as f:
             resources_data = json.load(f)
 
         catagories = {}

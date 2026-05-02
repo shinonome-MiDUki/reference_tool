@@ -154,8 +154,8 @@ class MainCanvas(QGraphicsView):
             if register_status == QDialog.DialogCode.Rejected:
                 return
         else:
-            pointer = existance_status[0]
-            path = resources_api.pointer_to_path(pointer)
+            img_hash = existance_status[0]
+            path = resources_api.pointer_to_path(img_hash)
         if event is None and not open_from_ext:
             return
         pm = QPixmap(path)
@@ -167,7 +167,7 @@ class MainCanvas(QGraphicsView):
         if not pm.isNull():
             item = ImageItem(pm, scene_pos)
             item.original_path = path
-            item.pointer = pointer
+            item.pointer = img_hash
             self.scene().addItem(item)
 
     def dropEvent(self, event):
